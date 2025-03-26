@@ -21,7 +21,7 @@ cellTypes = {
 
 cellGrid = []
 scene = None
-fighting = False
+fighting = True
 
 class Cell:
     def __init__(self, scene, width, height, size, rawPosition, position):
