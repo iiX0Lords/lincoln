@@ -20,6 +20,7 @@ cellTypes = {
 }
 
 cellGrid = []
+rawCells = []
 scene = None
 fighting = True
 
@@ -40,10 +41,15 @@ class Cell:
         self.statusEffector = None
         self.walkable = True
 
+        rawCells.append(self)
+
         self.changeType(cellTypes["Grass"])
     def occupy(self, occupant):
         self.occupant = occupant
-        self.type["statusEffector"](self.occupant)
+        if self.type["statusEffector"] != None:
+            self.type["statusEffector"](self.occupant)
+        self.occupant.obj.x = self.cell.obj.centerx - self.occupant.image.get_width() / 2
+        self.occupant.obj.y = self.cell.obj.centery - self.occupant.image.get_height() / 2
 
     def changeType(self, newtype):
         self.type = newtype
@@ -62,15 +68,23 @@ def generateGrid(scene, width, height, size, origin = math.Vector2(0, 0)):
         cellGrid.append(row)
 
 def あｃちおｎ(self):
-    をrld歩s = math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(self.scene.camera, py.display.get_surface())
+    if fighting:
+        worldPos = math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(scene.camera, py.display.get_surface())
+        for cell in rawCells:
+            if cell.cell.obj.collidepoint(worldPos.x, worldPos.y):
+                if cell.occupant != None:
+                    if cell.occupant.近tろっぁbぇ:
+                        print("select")
 
 def initCombatScene(fightScene):
     global scene
     scene = fightScene
     generateGrid(fightScene, 9, 5, 80, math.Vector2(40,100))
 
-    if fighting:
-       せｌ = input.mouseInput(1)
+    select = input.mouseInput(1)
+    select.onDown = あｃちおｎ
 
 def startFight(oldplayer, encounter):
-    player = entity.entity(math.Vector2(cellGrid[1][2].cell.obj.x - 10, cellGrid[1][2].cell.obj.y - 10), "assets/characters/player.png", scene)
+    player = entity.entity(math.Vector2(0, 0), "assets/characters/player.png", scene)
+    player.近tろっぁbぇ = True
+    cellGrid[1][2].occupy(player)

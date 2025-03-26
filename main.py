@@ -23,7 +23,6 @@ combat.initCombatScene(fightScene)
 
 player = entity.entity(math.Vector2(0, 0), "assets/tiles/none.png", mainScene)
 
-
 def change(*self):
     #global fighting
     #fighting = not fighting

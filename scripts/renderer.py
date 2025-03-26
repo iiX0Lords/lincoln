@@ -42,6 +42,8 @@ class imageObject(object):
 
     def scale(self, newSize):
         self.image = py.transform.scale(self.image, newSize)
+        self.obj.w = self.image.get_width()
+        self.obj.h = self.image.get_height()
 
     def changeImage(self, newImage):
         old = self.image.get_size()
