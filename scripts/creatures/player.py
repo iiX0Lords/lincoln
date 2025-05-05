@@ -4,6 +4,7 @@ import scripts.engine.math as math
 import scripts.engine.input as input
 import scripts.creatures.enity as enity
 import scripts.engine.spritesheet as spritesheet
+import pytmx
 
 #TODO add sprite animations
 #TODO normalize speed
@@ -22,6 +23,10 @@ class Player(enity.Entity):
         left = input.keyInput(py.K_a)
         right = input.keyInput(py.K_d)
 
+        sprint = input.keyInput(py.K_LCTRL)
+
+        sprint.onDown = self.sprintToggle
+
         up.onDown = self.move_up
         down.onDown = self.move_down
         left.onDown = self.move_left
@@ -39,6 +44,7 @@ class Player(enity.Entity):
             "right": False
         }
 
+        self.sprinting = False
         self.humanoid["speed"] = 1
 
     def move_left(self, key):
@@ -59,6 +65,13 @@ class Player(enity.Entity):
     def down_stop(self, key):
         self.keys["down"] = False
     
+    def sprintToggle(self, key):
+        self.sprinting = not self.sprinting
+        if self.sprinting:
+            self.humanoid["speed"] = 2
+        else:
+            self.humanoid["speed"] = 1
+    
     def update(self, dt):
         if self.keys["left"] == True:
             self.obj.x -= self.humanoid["speed"]
@@ -68,3 +81,13 @@ class Player(enity.Entity):
             self.obj.y -= self.humanoid["speed"]
         if self.keys["down"] == True:
             self.obj.y += self.humanoid["speed"]
+    
+        tile_x = int(self.obj.x // 16)
+        tile_y = int(self.obj.y // 16)
+
+        for layer in self.scene.map.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer):
+                tile = layer.data[tile_x][tile_y]
+                if tile:
+                    props = self.scene.map.images[tile]
+                    #print(props)
