@@ -33,4 +33,5 @@ while running:
 
     py.display.flip()
 
+    #print(clock.get_fps())
     dt = clock.tick(60) / 1000

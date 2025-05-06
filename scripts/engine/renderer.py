@@ -53,6 +53,8 @@ class imageObject(object):
         else:
             self.image = image.convert_alpha()
         object.__init__(self, position, scene)
+        self.debug = False
+        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
 
     def scale(self, newSize):
         self.image = py.transform.scale(self.image, newSize)
@@ -64,12 +66,22 @@ class imageObject(object):
         self.image = py.image.load(newImage).convert_alpha()
         self.scale(math.Vector2(old[0], old[1]))
 
-    def render(self, screen):
+    def updateImage(self):
         self.image = py.transform.scale(self.image, math.Vector2(self.obj.w * self.scene.camera.zoom, self.obj.h * self.scene.camera.zoom))
+        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
+
+    def render(self, screen):
         renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
+        renderPos -= self.origin
         if renderPos.x < screen.get_width() and renderPos.y < screen.get_height():
             if renderPos.x + self.image.get_width() > 0 and renderPos.y + self.image.get_height() > 0:
                 screen.blit(self.image, (renderPos.x, renderPos.y))
+
+        if self.debug == True:
+            position = math.Vector2(self.obj.x, self.obj.y)
+            position = position.toScreenSpace(self.scene.camera, py.display.get_surface())
+            debugRect = py.Rect(position.x, position.y, 5, 5)
+            py.draw.rect(py.display.get_surface(), py.Color(255, 0, 0), debugRect)
 
 
 class imageObjectSpritesheet(object):

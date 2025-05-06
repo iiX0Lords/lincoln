@@ -17,6 +17,8 @@ class Player(enity.Entity):
         enity.Entity.__init__(self, position, image, scene)
         self.obj.w = 16
         self.obj.h = 16
+        self.updateImage()
+        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)
@@ -36,6 +38,8 @@ class Player(enity.Entity):
         down.onUp = self.down_stop
         left.onUp = self.left_stop
         right.onUp = self.right_stop
+
+        self.debug = True
 
         self.keys = {
             "up": False,
@@ -81,7 +85,7 @@ class Player(enity.Entity):
             self.obj.y -= self.humanoid["speed"]
         if self.keys["down"] == True:
             self.obj.y += self.humanoid["speed"]
-    
+
         tile_x = int(self.obj.x // 16)
         tile_y = int(self.obj.y // 16)
 

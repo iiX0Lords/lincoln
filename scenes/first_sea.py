@@ -3,6 +3,7 @@ import scripts.engine.renderer as renderer
 import scripts.engine.math as math
 import scripts.engine.input as input
 import pytmx.util_pygame as tiledPygame
+import pytmx
 import scripts.zones as zoneManager
 import scripts.creatures.player as player
 
@@ -32,7 +33,7 @@ class first_sea(renderer.scene):
         self.zones = []
 
         for layer in self.map:
-            if hasattr(layer, "tiles"):
+            if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, image in layer.tiles():
                     if layer.name != "0":
                         obj = renderer.imageObject(math.Vector2(x * 16, y * 16), image, self)
@@ -41,18 +42,18 @@ class first_sea(renderer.scene):
                         obj.obj.h = 16
                         obj.zIndex = int(layer.name)
                         self.mapGrid[x][y] = obj
-        for obj in self.map.get_layer_by_name("objects2"):
-                    objI = renderer.imageObject(math.Vector2(obj.x, obj.y), obj.image, self)
-                    objI.layer = "2"
-                    objI.data = obj
-                    objI.zIndex = 2
-                    handleObjects(objI)
-        for obj in self.map.get_layer_by_name("objects1"):
-                    objI = renderer.imageObject(math.Vector2(obj.x, obj.y), obj.image, self)
-                    objI.layer = "1"
-                    objI.data = obj
-                    objI.zIndex = 1
-                    handleObjects(objI)
+                        obj.updateImage()
+            elif isinstance(layer, pytmx.TiledObjectGroup):
+                if layer.name != "zones":
+                    for obj in self.map.get_layer_by_name(layer.name):
+                        if obj != None:
+                            if obj.image != None:
+                                objI = renderer.imageObject(math.Vector2(obj.x, obj.y), obj.image, self)
+                                objI.layer = layer.name
+                                objI.data = obj
+                                objI.zIndex = int(layer.name)
+                                objI.updateImage()
+                                handleObjects(objI)
         for obj in self.map.get_layer_by_name("zones"):
                     self.zones.append(zoneManager.zone(obj))
 
