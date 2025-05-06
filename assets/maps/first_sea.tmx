@@ -3,7 +3,9 @@
  <editorsettings>
   <export format="tmx"/>
  </editorsettings>
- <tileset firstgid="1" source="../tilesets/terrain.tsx"/>
+ <tileset firstgid="1" name="terrain" tilewidth="16" tileheight="16" tilecount="870" columns="30">
+  <image source="tilesets/spr_grass_tileset.png" width="480" height="464"/>
+ </tileset>
  <layer id="9" name="0" width="100" height="100">
   <data encoding="csv">
 462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,462,
