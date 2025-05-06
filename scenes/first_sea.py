@@ -28,6 +28,8 @@ class first_sea(renderer.scene):
 
         self.player = player.Player(math.Vector2(0, 0), self)
         self.player.zIndex = 3
+        self.mapGrid = [[None for _ in range(self.map.width)] for _ in range(self.map.height)]
+        self.zones = []
 
         for layer in self.map:
             if hasattr(layer, "tiles"):
@@ -38,6 +40,7 @@ class first_sea(renderer.scene):
                         obj.obj.w = 16
                         obj.obj.h = 16
                         obj.zIndex = int(layer.name)
+                        self.mapGrid[x][y] = obj
         for obj in self.map.get_layer_by_name("objects2"):
                     objI = renderer.imageObject(math.Vector2(obj.x, obj.y), obj.image, self)
                     objI.layer = "2"
@@ -51,7 +54,7 @@ class first_sea(renderer.scene):
                     objI.zIndex = 1
                     handleObjects(objI)
         for obj in self.map.get_layer_by_name("zones"):
-                    zoneManager.zone(obj)
+                    self.zones.append(zoneManager.zone(obj))
 
     
         self.player.setPos(spawns[0].obj.x, spawns[0].obj.y)

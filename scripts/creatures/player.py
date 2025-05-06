@@ -85,9 +85,6 @@ class Player(enity.Entity):
         tile_x = int(self.obj.x // 16)
         tile_y = int(self.obj.y // 16)
 
-        for layer in self.scene.map.visible_layers:
-            if isinstance(layer, pytmx.TiledTileLayer):
-                tile = layer.data[tile_x][tile_y]
-                if tile:
-                    props = self.scene.map.images[tile]
-                    #print(props)
+        tile = self.scene.mapGrid[tile_x][tile_y]
+        if tile:
+            self.zIndex = tile.zIndex + 1
