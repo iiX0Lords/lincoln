@@ -30,6 +30,7 @@ class object:
         self.scene = scene
         self.ui = False
         self.scene.objects.append(self)
+        self.id = len(self.scene.objects)
         self.width = 0
         self.zIndex = 0
 
@@ -44,7 +45,7 @@ class object:
         self.obj.y = y
 
     def destroy(self):
-        self.scene.objects.remove(self)
+        self.scene.objects.pop(self.id)
 
 class imageObject(object):
     def __init__(self, position, image, scene):
@@ -54,12 +55,16 @@ class imageObject(object):
             self.image = image.convert_alpha()
         object.__init__(self, position, scene)
         self.debug = False
-        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
+        self.debugColour = py.Color(255, 0, 0)
+        self.origin = math.Vector2()#math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
+        self.obj = self.returnNewRect()
+
+    def returnNewRect(self):
+        return self.image.get_rect(x=self.obj.x, y=self.obj.y)
 
     def scale(self, newSize):
         self.image = py.transform.scale(self.image, newSize)
-        self.obj.w = self.image.get_width()
-        self.obj.h = self.image.get_height()
+        self.obj = self.returnNewRect()
 
     def changeImage(self, newImage):
         old = self.image.get_size()
@@ -68,7 +73,8 @@ class imageObject(object):
 
     def updateImage(self):
         self.image = py.transform.scale(self.image, math.Vector2(self.obj.w * self.scene.camera.zoom, self.obj.h * self.scene.camera.zoom))
-        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
+        self.obj = self.returnNewRect()
+        self.origin = math.Vector2()#math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
 
     def render(self, screen):
         renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
@@ -81,7 +87,14 @@ class imageObject(object):
             position = math.Vector2(self.obj.x, self.obj.y)
             position = position.toScreenSpace(self.scene.camera, py.display.get_surface())
             debugRect = py.Rect(position.x, position.y, 5, 5)
-            py.draw.rect(py.display.get_surface(), py.Color(255, 0, 0), debugRect)
+            py.draw.rect(py.display.get_surface(), self.debugColour, debugRect)
+
+            renderRect = py.Rect()
+            renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
+            renderRect.x = renderPos.x; renderRect.y = renderPos.y
+            renderRect.w = self.obj.w; renderRect.h = self.obj.h
+
+            py.draw.rect(screen, self.debugColour, renderRect, 2, 1)
 
 
 class imageObjectSpritesheet(object):

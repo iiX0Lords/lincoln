@@ -30,6 +30,7 @@ class first_sea(renderer.scene):
         self.player = player.Player(math.Vector2(0, 0), self)
         self.player.zIndex = 3
         self.mapGrid = [[None for _ in range(self.map.width)] for _ in range(self.map.height)]
+        self.mapTiles = []
         self.zones = []
 
         for layer in self.map:
@@ -38,11 +39,13 @@ class first_sea(renderer.scene):
                     if layer.name != "0":
                         obj = renderer.imageObject(math.Vector2(x * 16, y * 16), image, self)
                         obj.layer = layer.name
-                        obj.obj.w = 16
-                        obj.obj.h = 16
+                        #obj.obj.w = 16
+                        #obj.obj.h = 16
                         obj.zIndex = int(layer.name)
                         self.mapGrid[x][y] = obj
+                        self.mapTiles.append(obj)
                         obj.updateImage()
+                        obj.debug = True
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 if layer.name != "zones":
                     for obj in self.map.get_layer_by_name(layer.name):

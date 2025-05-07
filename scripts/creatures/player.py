@@ -18,7 +18,7 @@ class Player(enity.Entity):
         self.obj.w = 16
         self.obj.h = 16
         self.updateImage()
-        self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
+        #self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)
@@ -76,7 +76,11 @@ class Player(enity.Entity):
         else:
             self.humanoid["speed"] = 1
     
+    def collide(self, previousPosition):
+        self.obj.x = previousPosition.x; self.obj.y = previousPosition.y
+
     def update(self, dt):
+        previousPosition = math.Vector2(self.obj.x, self.obj.y)
         if self.keys["left"] == True:
             self.obj.x -= self.humanoid["speed"]
         if self.keys["right"] == True:
@@ -86,9 +90,9 @@ class Player(enity.Entity):
         if self.keys["down"] == True:
             self.obj.y += self.humanoid["speed"]
 
-        tile_x = int(self.obj.x // 16)
-        tile_y = int(self.obj.y // 16)
-
-        tile = self.scene.mapGrid[tile_x][tile_y]
-        if tile:
-            self.zIndex = tile.zIndex + 1
+        for tile in self.scene.mapTiles:
+            tile.debugColour = py.Color(255, 0, 0)
+            if self.obj.colliderect(tile.obj):
+                tile.debugColour = py.Color(0, 255, 0)
+                if tile.zIndex > self.zIndex:
+                    self.collide(previousPosition)
