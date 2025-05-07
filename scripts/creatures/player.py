@@ -39,7 +39,7 @@ class Player(enity.Entity):
         left.onUp = self.left_stop
         right.onUp = self.right_stop
 
-        self.debug = True
+        #self.debug = True
 
         self.keys = {
             "up": False,
@@ -90,9 +90,16 @@ class Player(enity.Entity):
         if self.keys["down"] == True:
             self.obj.y += self.humanoid["speed"]
 
+        localselfPosition = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+        localSelfRect = py.Rect(localselfPosition.x, localselfPosition.y, self.obj.w, self.obj.h)
+
         for tile in self.scene.mapTiles:
             tile.debugColour = py.Color(255, 0, 0)
-            if self.obj.colliderect(tile.obj):
+
+            localtilePosition = math.Vector2(tile.obj.x, tile.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+            localTileRect = py.Rect(localtilePosition.x, localtilePosition.y, tile.obj.w, tile.obj.h)
+
+            if localSelfRect.colliderect(localTileRect):
                 tile.debugColour = py.Color(0, 255, 0)
-                if tile.zIndex > self.zIndex:
+                if (self.zIndex + 1) == tile.zIndex or self.zIndex == tile.zIndex:
                     self.collide(previousPosition)

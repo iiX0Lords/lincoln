@@ -28,7 +28,7 @@ class first_sea(renderer.scene):
         self.camera.zoom = 3
 
         self.player = player.Player(math.Vector2(0, 0), self)
-        self.player.zIndex = 3
+        self.player.zIndex = 2
         self.mapGrid = [[None for _ in range(self.map.width)] for _ in range(self.map.height)]
         self.mapTiles = []
         self.zones = []
@@ -45,7 +45,7 @@ class first_sea(renderer.scene):
                         self.mapGrid[x][y] = obj
                         self.mapTiles.append(obj)
                         obj.updateImage()
-                        obj.debug = True
+                        #obj.debug = True
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 if layer.name != "zones":
                     for obj in self.map.get_layer_by_name(layer.name):
