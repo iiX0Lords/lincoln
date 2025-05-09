@@ -19,6 +19,7 @@ class Entity(renderer.imageObject):
             "speed": 1
         }
         self.ai = False
+        self.velocity = py.Vector3(0, 0, 0)
     def takeDamage(self, amount):
         self.stats["health"] -= amount
     def heal(self, amount):
