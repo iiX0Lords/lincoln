@@ -45,7 +45,7 @@ class first_sea(renderer.scene):
                         self.mapGrid[x][y] = obj
                         self.mapTiles.append(obj)
                         obj.updateImage()
-                        #obj.debug = True
+                        obj.debug = True
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 if layer.name != "zones":
                     for obj in self.map.get_layer_by_name(layer.name):
