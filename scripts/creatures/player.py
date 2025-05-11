@@ -116,19 +116,19 @@ class Player(enity.Entity):
         localselfPositionCenter = math.Vector2(self.obj.x + 8, self.obj.y + 8).toScreenSpace(self.scene.camera, py.display.get_surface())
         localSelfRect = py.Rect(localselfPosition.x, localselfPosition.y, self.obj.w, self.obj.h)
 
+        if self.currentZone != None:
+            for tile in self.currentZone.mapTiles:
+                tile.debugColour = py.Color(0, 255, 0)
 
-        for tile in self.scene.mapTiles:
-            tile.debugColour = py.Color(0, 255, 0)
+                localtilePosition = math.Vector2(tile.obj.x, tile.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+                localTileRect = py.Rect(localtilePosition.x, localtilePosition.y, tile.obj.w, tile.obj.h)
 
-            localtilePosition = math.Vector2(tile.obj.x, tile.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
-            localTileRect = py.Rect(localtilePosition.x, localtilePosition.y, tile.obj.w, tile.obj.h)
+                if localSelfRect.colliderect(localTileRect):
+                    tile.debugColour = py.Color(255, 0, 0)
+                    if tile.zIndex == 3:
+                        self.collide(previousPosition)
 
-            if localSelfRect.colliderect(localTileRect):
-                tile.debugColour = py.Color(255, 0, 0)
-                if tile.zIndex == 3:
-                    self.collide(previousPosition)
-
-        tile = self.get_tile(self.scene.map, localselfPositionCenter)
-        tile = self.scene.mapGrid[tile["tile_x"]][tile["tile_y"]]
-        if tile:
-            tile.debugColour = py.Color(0, 0, 255)
+            tile = self.get_tile(self.scene.map, localselfPositionCenter)
+            tile = self.currentZone.mapGrid[tile["tile_x"]][tile["tile_y"]]
+            if tile:
+                tile.debugColour = py.Color(0, 0, 255)

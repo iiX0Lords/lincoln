@@ -20,6 +20,7 @@ class Entity(renderer.imageObject):
         }
         self.ai = False
         self.velocity = math.Vector2(0, 0)
+        self.currentZone = None
     def takeDamage(self, amount):
         self.stats["health"] -= amount
     def heal(self, amount):

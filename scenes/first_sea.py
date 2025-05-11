@@ -21,8 +21,6 @@ def is_integer(s):
     except ValueError:
         return False
 
-#TODO fix layer issues with map in tiled
-#TODO add zone support with updating
 #TODO add save file
 class first_sea(renderer.scene):
     def __init__(self):
@@ -39,6 +37,9 @@ class first_sea(renderer.scene):
         self.mapTiles = []
         self.zones = []
 
+        for obj in self.map.get_layer_by_name("zones"):
+            self.zones.append(zoneManager.zone(obj, self.map))
+
         for layer in self.map:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, image in layer.tiles():
@@ -48,10 +49,15 @@ class first_sea(renderer.scene):
                         obj.zIndex = 1
                         if layer.name == "Decorations":
                              obj.zIndex = 2
-                        self.mapGrid[x][y] = obj
-                        self.mapTiles.append(obj)
+                        #self.mapGrid[x][y] = obj
+                        #self.mapTiles.append(obj)
                         obj.updateImage()
                         obj.debug = True
+
+                        for zone in self.zones:
+                            if zone.isInside(obj.obj):
+                                zone.mapTiles.append(obj)
+                                zone.mapGrid[x][y] = obj
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 if layer.name != "zones":
                     for obj in self.map.get_layer_by_name(layer.name):
@@ -63,8 +69,6 @@ class first_sea(renderer.scene):
                                 objI.zIndex = int(layer.name)
                                 objI.updateImage()
                                 handleObjects(objI)
-        for obj in self.map.get_layer_by_name("zones"):
-                    self.zones.append(zoneManager.zone(obj))
 
     
         self.player.setPos(spawns[0].obj.x, spawns[0].obj.y)
@@ -72,3 +76,14 @@ class first_sea(renderer.scene):
         self.camera.position = self.camera.position.lerp(math.Vector2(self.player.obj.x, self.player.obj.y), 0.1)
         self.player.update(dt)
         
+
+        for zone in self.zones:
+            x, y = zone.obj.x, zone.obj.y
+            w, h = zone.obj.width, zone.obj.height
+
+            if self.player.obj.x > x and self.player.obj.x < x + w and self.player.obj.y > y and self.player.obj.y < y + h:
+                zone.active = True
+                self.player.currentZone = zone
+            else:
+                zone.active = False
+                self.player.currentZone = None
