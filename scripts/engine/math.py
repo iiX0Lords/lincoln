@@ -1,4 +1,5 @@
 import pygame as py
+import math
 
 class Vector2(py.Vector2):
     def toWorldSpace(self, camera, screen):
@@ -21,3 +22,6 @@ class Vector2(py.Vector2):
         screen_y = (self.y - camera_y) * scale_y + screen_height / 2
         
         return Vector2(screen_x, screen_y)
+    
+    def snap(self, grid_size):
+        return Vector2(math.floor(self.x / grid_size + 0.5) * grid_size, math.floor(self.y / grid_size + 0.5) * grid_size)

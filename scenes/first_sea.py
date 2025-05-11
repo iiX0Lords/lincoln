@@ -14,6 +14,12 @@ def handleObjects(obj):
           print(obj.data.properties["spawner"])
           spawns.append(obj)
 
+def is_integer(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 #TODO fix layer issues with map in tiled
 #TODO add zone support with updating
@@ -36,12 +42,12 @@ class first_sea(renderer.scene):
         for layer in self.map:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, image in layer.tiles():
-                    if layer.name != "0":
+                    if layer.name != "Water" :
                         obj = renderer.imageObject(math.Vector2(x * 16, y * 16), image, self)
                         obj.layer = layer.name
-                        #obj.obj.w = 16
-                        #obj.obj.h = 16
-                        obj.zIndex = int(layer.name)
+                        obj.zIndex = 1
+                        if layer.name == "Decorations":
+                             obj.zIndex = 2
                         self.mapGrid[x][y] = obj
                         self.mapTiles.append(obj)
                         obj.updateImage()

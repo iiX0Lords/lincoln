@@ -8,7 +8,6 @@ import pytmx
 
 #TODO add sprite animations
 #TODO normalize speed
-#TODO change movement to use velocity based instead so it is smoother w friction
 
 class Player(enity.Entity):
     def __init__(self, position, scene):
@@ -72,7 +71,7 @@ class Player(enity.Entity):
         self.keys["up"] = False
     def down_stop(self, key):
         self.keys["down"] = False
-    
+
     def sprintToggle(self, key):
         self.sprinting = not self.sprinting
         if self.sprinting:
@@ -80,8 +79,7 @@ class Player(enity.Entity):
         else:
             self.humanoid["speed"] = 1
     def goodbyeFriction(self, key):
-        #self.friction = 0
-        self.zIndex += 1
+        self.friction = 0
     
     def collide(self, previousPosition):
         self.obj.x = previousPosition.x; self.obj.y = previousPosition.y
@@ -115,10 +113,9 @@ class Player(enity.Entity):
             self.velocity.y = 0
         
         localselfPosition = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+        localselfPositionCenter = math.Vector2(self.obj.x + 8, self.obj.y + 8).toScreenSpace(self.scene.camera, py.display.get_surface())
         localSelfRect = py.Rect(localselfPosition.x, localselfPosition.y, self.obj.w, self.obj.h)
 
-        closet = 99999
-        chosen = None
 
         for tile in self.scene.mapTiles:
             tile.debugColour = py.Color(0, 255, 0)
@@ -128,13 +125,10 @@ class Player(enity.Entity):
 
             if localSelfRect.colliderect(localTileRect):
                 tile.debugColour = py.Color(255, 0, 0)
-                if (self.zIndex + 1) == tile.zIndex or self.zIndex == tile.zIndex:
+                if tile.zIndex == 3:
                     self.collide(previousPosition)
 
-                distance = (localtilePosition - localselfPosition).magnitude()
-                if distance < closet:
-                    closet = distance
-                    chosen = tile
-        if chosen:
-            chosen.debugColour = py.Color(0, 0, 255)
-            print(chosen.zIndex)
+        tile = self.get_tile(self.scene.map, localselfPositionCenter)
+        tile = self.scene.mapGrid[tile["tile_x"]][tile["tile_y"]]
+        if tile:
+            tile.debugColour = py.Color(0, 0, 255)
