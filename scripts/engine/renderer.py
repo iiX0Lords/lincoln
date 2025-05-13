@@ -58,6 +58,7 @@ class imageObject(object):
         self.debugColour = py.Color(255, 0, 0)
         self.origin = math.Vector2()#math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
         self.obj = self.returnNewRect()
+        self.rotated = None
 
     def returnNewRect(self):
         return self.image.get_rect(x=self.obj.x, y=self.obj.y)
@@ -81,7 +82,10 @@ class imageObject(object):
         renderPos -= self.origin
         if renderPos.x < screen.get_width() and renderPos.y < screen.get_height():
             if renderPos.x + self.image.get_width() > 0 and renderPos.y + self.image.get_height() > 0:
-                screen.blit(self.image, (renderPos.x, renderPos.y))
+                if self.rotated != None:
+                    screen.blit(self.rotated, (renderPos.x - self.rotated.get_width() / 2, renderPos.y - self.rotated.get_height() / 2))
+                else:
+                    screen.blit(self.image, (renderPos.x, renderPos.y))
 
         if self.debug == True:
             position = math.Vector2(self.obj.x, self.obj.y)

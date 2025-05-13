@@ -1,6 +1,7 @@
 import pygame as py
 import scripts.engine.renderer as renderer
-import scripts.engine.math as math
+import scripts.engine.math as vector2
+import math
 import scripts.engine.input as input
 import pytmx.util_pygame as tiledPygame
 import pytmx
@@ -20,6 +21,11 @@ def is_integer(s):
         return True
     except ValueError:
         return False
+    
+def rot_center(image, angle, x, y):
+    rotated_image = py.transform.rotate(image, angle)
+    new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+    return rotated_image, new_rect
 
 #TODO add save file
 class first_sea(renderer.scene):
@@ -31,7 +37,7 @@ class first_sea(renderer.scene):
 
         self.camera.zoom = 3
 
-        self.player = player.Player(math.Vector2(0, 0), self)
+        self.player = player.Player(vector2.Vector2(0, 0), self)
         self.player.zIndex = 2
         self.mapGrid = [[None for _ in range(self.map.width)] for _ in range(self.map.height)]
         self.mapTiles = []
@@ -44,7 +50,7 @@ class first_sea(renderer.scene):
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, image in layer.tiles():
                     if layer.name != "Water" :
-                        obj = renderer.imageObject(math.Vector2(x * 16, y * 16), image, self)
+                        obj = renderer.imageObject(vector2.Vector2(x * 16, y * 16), image, self)
                         obj.layer = layer.name
                         obj.zIndex = 1
                         if layer.name == "Decorations":
@@ -52,7 +58,7 @@ class first_sea(renderer.scene):
                         #self.mapGrid[x][y] = obj
                         #self.mapTiles.append(obj)
                         obj.updateImage()
-                        obj.debug = True
+                        #obj.debug = True
 
                         for zone in self.zones:
                             if zone.isInside(obj.obj):
@@ -63,7 +69,7 @@ class first_sea(renderer.scene):
                     for obj in self.map.get_layer_by_name(layer.name):
                         if obj != None:
                             if obj.image != None:
-                                objI = renderer.imageObject(math.Vector2(obj.x, obj.y), obj.image, self)
+                                objI = renderer.imageObject(vector2.Vector2(obj.x, obj.y), obj.image, self)
                                 objI.layer = layer.name
                                 objI.data = obj
                                 objI.zIndex = int(layer.name)
@@ -73,7 +79,7 @@ class first_sea(renderer.scene):
     
         self.player.setPos(spawns[0].obj.x, spawns[0].obj.y)
     def update(self, dt):
-        self.camera.position = self.camera.position.lerp(math.Vector2(self.player.obj.x, self.player.obj.y), 0.1)
+        self.camera.position = self.camera.position.lerp(vector2.Vector2(self.player.obj.x, self.player.obj.y), 0.1)
         self.player.update(dt)
         
 
@@ -87,3 +93,33 @@ class first_sea(renderer.scene):
             else:
                 zone.active = False
                 self.player.currentZone = None
+
+
+        direction = vector2.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(self.camera, py.display.get_surface()) - vector2.Vector2(self.player.obj.x, self.player.obj.y)
+        radius, angle = direction.as_polar()
+        targetAngle = -angle
+        rotationSpeed = 7
+        angleDiff = (targetAngle - self.player.angle) % 360
+        if angleDiff > 180:
+            angleDiff -= 360
+        elif angleDiff < -180:
+            angleDiff += 360
+
+        deadzone = 5
+        if abs(angleDiff) < deadzone:
+            angleDiff = 0
+
+        rotationVelocity = angleDiff * rotationSpeed
+        rotationVelocity = max(-rotationSpeed, min(rotationVelocity, rotationSpeed))
+        self.player.angle += rotationVelocity
+        self.player.angle = self.player.angle % 360
+
+        rotatedImage, newRect = rot_center(self.player.image, self.player.angle, self.player.obj.w/2, self.player.obj.h/2)
+        new_x = self.player.obj.x + (newRect.centerx - self.player.obj.w/2)
+        new_y = self.player.obj.y + (newRect.centery - self.player.obj.h/2)
+        self.player.obj.x = new_x
+        self.player.obj.y = new_y
+        self.player.rotated = rotatedImage
+    def events(self, event):
+        if event.type == py.MOUSEMOTION:
+            pass

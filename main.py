@@ -1,3 +1,4 @@
+from __future__ import division
 import pygame as py
 import scripts.engine.renderer as renderer
 import scripts.engine.math as math
@@ -25,6 +26,9 @@ while running:
         if event.type == py.QUIT:
             running = False
         input.handleInput(event)
+        for scene in renderer.scenes:
+            if scene.active == True:
+                scene.events(event)
 
     for scene in renderer.scenes:
         if scene.active == True:

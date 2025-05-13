@@ -17,6 +17,7 @@ class Player(enity.Entity):
         self.obj.w = 16
         self.obj.h = 16
         self.updateImage()
+        self.angle = 0
         #self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
 
         up = input.keyInput(py.K_w)
@@ -41,7 +42,7 @@ class Player(enity.Entity):
         left.onUp = self.left_stop
         right.onUp = self.right_stop
 
-        self.debug = True
+        #self.debug = True
 
         self.keys = {
             "up": False,
