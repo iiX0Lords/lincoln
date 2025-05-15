@@ -114,7 +114,7 @@ class Player(enity.Entity):
             self.velocity.y = 0
         
         self.collisionCheck(previousPosition)
-        print(self.humanoid["health"])
+        self.humanoid["health"] -= 0.1
 
         self.pointAt(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]), 9, 5)
     def onUi(self):
