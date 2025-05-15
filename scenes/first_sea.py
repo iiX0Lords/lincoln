@@ -77,6 +77,7 @@ class first_sea(renderer.scene):
     def update(self, dt):
         self.camera.position = self.camera.position.lerp(vector2.Vector2(self.player.obj.x, self.player.obj.y), 0.1)
         self.player.update(dt)
+        self.player.onUi()
         
         for zone in self.zones:
             x, y = zone.obj.x, zone.obj.y

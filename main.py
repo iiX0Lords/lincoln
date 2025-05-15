@@ -3,8 +3,8 @@ import pygame as py
 import scripts.engine.renderer as renderer
 import scripts.engine.math as math
 import scripts.engine.input as input
-import sys
 import scenes.first_sea
+import sys
 sys.dont_write_bytecode = True
 
 py.init()

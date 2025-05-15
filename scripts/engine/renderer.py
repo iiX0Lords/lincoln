@@ -15,11 +15,12 @@ class scene:
     def render(self, screen):
         sortedObjects = sorted(self.objects, key=lambda obj: obj.zIndex)
         for obj in sortedObjects:
-            if obj.ui == False:
+            if obj.ui is False:
                 obj.render(screen)
         for obj in sortedObjects:
-            if obj.ui == True:
+            if obj.ui is True:
                 obj.render(screen)
+                obj.update()
     def update(self, dt):
         pass
 
@@ -35,11 +36,13 @@ class object:
         self.zIndex = 0
 
     def render(self, screen):
-        renderRect = py.Rect()
-        renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
-        renderRect.update(renderPos.x, renderPos.y, self.obj.w, self.obj.h)
-
-        py.draw.rect(screen, self.colour, renderRect, width=self.width)
+        if self.ui is False:
+            renderRect = py.Rect()
+            renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
+            renderRect.update(renderPos.x, renderPos.y, self.obj.w, self.obj.h)
+            py.draw.rect(screen, self.colour, renderRect, width=self.width)
+        else:
+            py.draw.rect(screen, self.colour, self.obj, width=self.width)
     def setPos(self, x, y):
         self.obj.x = x
         self.obj.y = y
@@ -129,42 +132,58 @@ class imageObjectSpritesheet(object):
         renderPos = renderPos.toScreenSpace(self.scene.camera, screen)
         screen.blit(self.image, (renderPos.x, renderPos.y))
 
-class frame(object):
-    def __init__(self, position, scene):
-        object.__init__(self, position, scene)
-        self.ui = True
-
-class button(frame):
-    def __init__(self, position, scene):
-        frame.__init__(self, position, scene)
-        self.hovering = False
-
-        self.buttonEvent = input.mouseInput(1)
-        self.buttonEvent.onDown = self.checkOn
-        self.buttonEvent.onUp = self.checkOff
-
-    def checkOn(self, key):
-        pos = math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(self.scene.camera, py.display.get_surface())
-        if self.obj.collidepoint(pos.x, pos.y):
-            self.onPress(self)
-    def checkOff(self, key):
-        pos = math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(self.scene.camera, py.display.get_surface())
-        if self.obj.collidepoint(pos.x, pos.y):
-            self.onUp(self)
-
-    def onPress(self, why = None):
-        pass
-    def onUp(self, why = None):
-        pass
-    def onHover(self, why = None):
-        pass
-    def onUnhover(self, why = None):
-        pass
-    def destroy(self):
-        self.scene.objects.remove(self)
-        self.buttonEvent.unregisterKey()
-
 class camera():
     def __init__(self):
         self.position = math.Vector2(py.display.get_surface().get_width() / 2, py.display.get_surface().get_height() / 2)
         self.zoom = 1
+
+class frame(object):
+    def __init__(self, position, scene):
+        object.__init__(self, position, scene)
+        self.zIndex = 99
+        self.ui = True
+    def update(self):
+        pass
+
+class imageFrame(imageObject):
+    def __init__(self, position, image, scene):
+        imageObject.__init__(self, position, image, scene)
+        self.zIndex = 99
+        self.ui = True
+    def render(self, screen):
+        if self.rotated is not None:
+            screen.blit(self.rotated, (self.obj.x - self.rotated.get_width() / 2, self.obj.y - self.rotated.get_height() / 2))
+        else:
+            screen.blit(self.image, (self.obj.x, self.obj.y))
+    def update(self):
+        pass
+
+class button(imageFrame):
+    def __init__(self, position, image, scene):
+        imageFrame.__init__(self, position, image, scene)
+        self.hovering = False
+
+    def onClick(self, position):
+        pass
+    def onUnclick(self, position):
+        pass
+    def onHover(self, position):
+        pass
+    def onUnhover(self, position):
+        pass
+
+    def update(self):
+        mousePosition = math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1])
+        if self.obj.collidepoint(mousePosition):
+            self.hovering = True
+            self.onHover(mousePosition)
+        else:
+            if self.hovering is True:
+                self.hovering = False
+                self.onUnhover(mousePosition)
+
+        if self.hovering is True:
+            if py.mouse.get_pressed()[0] is True:
+                self.onClick(mousePosition)
+            else:
+                self.onUnclick(mousePosition)

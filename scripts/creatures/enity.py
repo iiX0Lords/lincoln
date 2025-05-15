@@ -9,13 +9,14 @@ class Entity(renderer.imageObject):
     def __init__(self, position, image, scene):
         renderer.imageObject.__init__(self, position, image, scene)
         self.stats = {
-            "energy": 0,
             "mp": 0,
             "str": 0,
         }
         self.humanoid = {
             "health": 100,
             "maxHealth": 100,
+            "energy": 30,
+            "maxEnergy" : 30,
             "speed": 1
         }
         self.ai = False

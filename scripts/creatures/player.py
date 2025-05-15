@@ -4,10 +4,11 @@ import scripts.engine.math as math
 import scripts.engine.input as input
 import scripts.creatures.enity as enity
 import scripts.engine.spritesheet as spritesheet
-import pytmx
+import scripts.ui.hud
 
 #TODO add sprite animations
 #TODO normalize speed
+
 
 class Player(enity.Entity):
     def __init__(self, position, scene):
@@ -18,6 +19,9 @@ class Player(enity.Entity):
         self.obj.h = 16
         self.updateImage()
         #self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
+
+
+        self.hud = scripts.ui.hud.Hud(scene)
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)
@@ -110,5 +114,8 @@ class Player(enity.Entity):
             self.velocity.y = 0
         
         self.collisionCheck(previousPosition)
+        print(self.humanoid["health"])
 
         self.pointAt(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]), 9, 5)
+    def onUi(self):
+        self.hud.update()
