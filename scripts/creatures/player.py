@@ -17,7 +17,6 @@ class Player(enity.Entity):
         self.obj.w = 16
         self.obj.h = 16
         self.updateImage()
-        self.angle = 0
         #self.origin = math.Vector2(self.image.get_width() / 2, self.image.get_height())
 
         up = input.keyInput(py.K_w)
@@ -81,19 +80,16 @@ class Player(enity.Entity):
             self.humanoid["speed"] = 1
     def goodbyeFriction(self, key):
         self.friction = 0
-    
-    def collide(self, previousPosition):
-        self.obj.x = previousPosition.x; self.obj.y = previousPosition.y
 
     def update(self, dt):
         previousPosition = math.Vector2(self.obj.x, self.obj.y)
-        if self.keys["left"] == True:
+        if self.keys["left"] is True:
             self.velocity.x = -self.humanoid["speed"]
-        if self.keys["right"] == True:
+        if self.keys["right"] is True:
             self.velocity.x = self.humanoid["speed"]
-        if self.keys["up"] == True:
+        if self.keys["up"] is True:
             self.velocity.y = -self.humanoid["speed"]
-        if self.keys["down"] == True:
+        if self.keys["down"] is True:
             self.velocity.y = self.humanoid["speed"]
 
         self.obj.x += self.velocity.x; self.obj.y += self.velocity.y
@@ -113,23 +109,6 @@ class Player(enity.Entity):
         if self.velocity.y >= 0 and self.velocity.y <= 0.2:
             self.velocity.y = 0
         
-        localselfPosition = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
-        localselfPositionCenter = math.Vector2(self.obj.x + 8, self.obj.y + 8).toScreenSpace(self.scene.camera, py.display.get_surface())
-        localSelfRect = py.Rect(localselfPosition.x, localselfPosition.y, self.obj.w, self.obj.h)
+        self.collisionCheck(previousPosition)
 
-        if self.currentZone != None:
-            for tile in self.currentZone.mapTiles:
-                tile.debugColour = py.Color(0, 255, 0)
-
-                localtilePosition = math.Vector2(tile.obj.x, tile.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
-                localTileRect = py.Rect(localtilePosition.x, localtilePosition.y, tile.obj.w, tile.obj.h)
-
-                if localSelfRect.colliderect(localTileRect):
-                    tile.debugColour = py.Color(255, 0, 0)
-                    if tile.zIndex == 3:
-                        self.collide(previousPosition)
-
-            tile = self.get_tile(self.scene.map, localselfPositionCenter)
-            tile = self.currentZone.mapGrid[tile["tile_x"]][tile["tile_y"]]
-            if tile:
-                tile.debugColour = py.Color(0, 0, 255)
+        self.pointAt(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]), 9, 5)

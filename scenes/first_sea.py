@@ -22,10 +22,6 @@ def is_integer(s):
     except ValueError:
         return False
     
-def rot_center(image, angle, x, y):
-    rotated_image = py.transform.rotate(image, angle)
-    new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
-    return rotated_image, new_rect
 
 #TODO add save file
 class first_sea(renderer.scene):
@@ -67,8 +63,8 @@ class first_sea(renderer.scene):
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 if layer.name != "zones":
                     for obj in self.map.get_layer_by_name(layer.name):
-                        if obj != None:
-                            if obj.image != None:
+                        if obj is not None:
+                            if obj.image is not None:
                                 objI = renderer.imageObject(vector2.Vector2(obj.x, obj.y), obj.image, self)
                                 objI.layer = layer.name
                                 objI.data = obj
@@ -82,7 +78,6 @@ class first_sea(renderer.scene):
         self.camera.position = self.camera.position.lerp(vector2.Vector2(self.player.obj.x, self.player.obj.y), 0.1)
         self.player.update(dt)
         
-
         for zone in self.zones:
             x, y = zone.obj.x, zone.obj.y
             w, h = zone.obj.width, zone.obj.height
@@ -94,32 +89,6 @@ class first_sea(renderer.scene):
                 zone.active = False
                 self.player.currentZone = None
 
-
-        direction = vector2.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]).toWorldSpace(self.camera, py.display.get_surface()) - vector2.Vector2(self.player.obj.x, self.player.obj.y)
-        radius, angle = direction.as_polar()
-        targetAngle = -angle
-        rotationSpeed = 7
-        angleDiff = (targetAngle - self.player.angle) % 360
-        if angleDiff > 180:
-            angleDiff -= 360
-        elif angleDiff < -180:
-            angleDiff += 360
-
-        deadzone = 5
-        if abs(angleDiff) < deadzone:
-            angleDiff = 0
-
-        rotationVelocity = angleDiff * rotationSpeed
-        rotationVelocity = max(-rotationSpeed, min(rotationVelocity, rotationSpeed))
-        self.player.angle += rotationVelocity
-        self.player.angle = self.player.angle % 360
-
-        rotatedImage, newRect = rot_center(self.player.image, self.player.angle, self.player.obj.w/2, self.player.obj.h/2)
-        new_x = self.player.obj.x + (newRect.centerx - self.player.obj.w/2)
-        new_y = self.player.obj.y + (newRect.centery - self.player.obj.h/2)
-        self.player.obj.x = new_x
-        self.player.obj.y = new_y
-        self.player.rotated = rotatedImage
     def events(self, event):
         if event.type == py.MOUSEMOTION:
             pass

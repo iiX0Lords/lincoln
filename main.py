@@ -4,6 +4,7 @@ import scripts.engine.renderer as renderer
 import scripts.engine.math as math
 import scripts.engine.input as input
 import sys
+import scenes.first_sea
 sys.dont_write_bytecode = True
 
 py.init()
@@ -15,7 +16,6 @@ clock = py.time.Clock()
 running = True
 dt = 0
 
-import scenes.first_sea
 firstSea = scenes.first_sea.first_sea()
 
 while running:
@@ -27,11 +27,11 @@ while running:
             running = False
         input.handleInput(event)
         for scene in renderer.scenes:
-            if scene.active == True:
+            if scene.active is True:
                 scene.events(event)
 
     for scene in renderer.scenes:
-        if scene.active == True:
+        if scene.active is True:
             scene.update(dt)
             scene.render(window)
 

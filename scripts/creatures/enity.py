@@ -21,6 +21,9 @@ class Entity(renderer.imageObject):
         self.ai = False
         self.velocity = math.Vector2(0, 0)
         self.currentZone = None
+        self.standingTile = None
+
+        self.angle = 0
     def takeDamage(self, amount):
         self.stats["health"] -= amount
     def heal(self, amount):
@@ -45,3 +48,56 @@ class Entity(renderer.imageObject):
                     }
 
         return None
+    def collide(self, previousPosition):
+        self.obj.x = previousPosition.x; self.obj.y = previousPosition.y
+    def rot_center(self, image, angle, x, y):
+        rotated_image = py.transform.rotate(image, angle)
+        new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+        return rotated_image, new_rect
+    def collisionCheck(self, previousPosition):
+        localselfPosition = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+        localselfPositionCenter = math.Vector2(self.obj.x + 8, self.obj.y + 8).toScreenSpace(self.scene.camera, py.display.get_surface())
+        localSelfRect = py.Rect(localselfPosition.x, localselfPosition.y, self.obj.w, self.obj.h)
+
+        if self.currentZone is not None:
+            for tile in self.currentZone.mapTiles:
+                tile.debugColour = py.Color(0, 255, 0)
+
+                localtilePosition = math.Vector2(tile.obj.x, tile.obj.y).toScreenSpace(self.scene.camera, py.display.get_surface())
+                localTileRect = py.Rect(localtilePosition.x, localtilePosition.y, tile.obj.w, tile.obj.h)
+
+                if localSelfRect.colliderect(localTileRect):
+                    tile.debugColour = py.Color(255, 0, 0)
+                    if tile.zIndex == 3:
+                        self.collide(previousPosition)
+
+            tile = self.get_tile(self.scene.map, localselfPositionCenter)
+            tile = self.currentZone.mapGrid[tile["tile_x"]][tile["tile_y"]]
+            if tile:
+                tile.debugColour = py.Color(0, 0, 255)
+                self.standingTile = tile
+    def pointAt(self, position, rotationSpeed, deadzone = 5):
+        direction = position.toWorldSpace(self.scene.camera, py.display.get_surface()) - math.Vector2(self.obj.x, self.obj.y)
+        radius, angle = direction.as_polar()
+        targetAngle = -angle
+        angleDiff = (targetAngle - self.angle) % 360
+        if angleDiff > 180:
+            angleDiff -= 360
+        elif angleDiff < -180:
+            angleDiff += 360
+        
+        if abs(angleDiff) < deadzone:
+            angleDiff = 0
+
+        rotationVelocity = angleDiff * rotationSpeed
+        rotationVelocity = max(-rotationSpeed, min(rotationVelocity, rotationSpeed))
+        self.angle += rotationVelocity
+        self.angle = self.angle % 360
+
+        rotatedImage, newRect = self.rot_center(self.image, self.angle, self.obj.w/2, self.obj.h/2)
+        new_x = self.obj.x + (newRect.centerx - self.obj.w/2)
+        new_y = self.obj.y + (newRect.centery - self.obj.h/2)
+        self.obj.x = new_x
+        self.obj.y = new_y
+        self.rotated = rotatedImage
+    
