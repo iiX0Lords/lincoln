@@ -5,6 +5,7 @@ import scripts.engine.input as input
 import scripts.creatures.enity as enity
 import scripts.engine.spritesheet as spritesheet
 import scripts.ui.hud
+import scripts.ui.backpack as backpack
 
 #TODO add sprite animations
 #TODO normalize speed
@@ -22,6 +23,12 @@ class Player(enity.Entity):
 
 
         self.hud = scripts.ui.hud.Hud(scene)
+        self.backpack = backpack.backpack(scene)
+
+        testTool = backpack.tool()
+        testTool.activated = self.test
+        testTool.Icon = "assets/tools/fireMagicIcon.png"
+        self.backpack.addTool(testTool, 0)
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)
@@ -57,6 +64,9 @@ class Player(enity.Entity):
         self.sprinting = False
         self.humanoid["speed"] = 1
         self.friction = 0.5
+
+    def test(self):
+        print("jogn is smnean")
 
     def move_left(self, key):
         self.keys["left"] = True
@@ -119,3 +129,4 @@ class Player(enity.Entity):
         self.pointAt(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]), 9, 5)
     def onUi(self):
         self.hud.update()
+        self.backpack.update()

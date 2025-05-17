@@ -90,7 +90,7 @@ class imageObject(object):
                 else:
                     screen.blit(self.image, (renderPos.x, renderPos.y))
 
-        if self.debug == True:
+        if self.debug is True:
             position = math.Vector2(self.obj.x, self.obj.y)
             position = position.toScreenSpace(self.scene.camera, py.display.get_surface())
             debugRect = py.Rect(position.x, position.y, 5, 5)

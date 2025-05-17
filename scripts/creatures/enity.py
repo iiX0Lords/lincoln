@@ -23,6 +23,7 @@ class Entity(renderer.imageObject):
         self.velocity = math.Vector2(0, 0)
         self.currentZone = None
         self.standingTile = None
+        self.magic = "fire"
 
         self.angle = 0
     def takeDamage(self, amount):
