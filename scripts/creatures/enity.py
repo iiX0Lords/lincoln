@@ -2,7 +2,7 @@ import pygame as py
 import scripts.engine.renderer as renderer
 import scripts.engine.math as math
 import scripts.engine.input as input
-import scripts.zones as zoneManager
+import scripts.ui.backpack as backpack
 import pytmx
 
 class Entity(renderer.imageObject):
@@ -23,7 +23,7 @@ class Entity(renderer.imageObject):
         self.velocity = math.Vector2(0, 0)
         self.currentZone = None
         self.standingTile = None
-        self.magic = "fire"
+        self.backpack = backpack.backpack(scene)
 
         self.angle = 0
     def takeDamage(self, amount):

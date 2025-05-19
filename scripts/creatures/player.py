@@ -23,12 +23,9 @@ class Player(enity.Entity):
 
 
         self.hud = scripts.ui.hud.Hud(scene)
-        self.backpack = backpack.backpack(scene)
+        self.backpack.makePlayer()
 
-        testTool = backpack.tool()
-        testTool.activated = self.test
-        testTool.Icon = "assets/tools/fireMagicIcon.png"
-        self.backpack.addTool(testTool, 0)
+        
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)

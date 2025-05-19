@@ -8,6 +8,7 @@ tools = [None, None, None, None]
 class tool:
     def __init__(self):
         self.Icon = None
+        self.active = False
 
     def equipped(self):
         pass
@@ -40,10 +41,19 @@ class hotbarIcon:
         self.toolIcon.obj.x = self.icon.obj.x + self.toolIcon.obj.w / 2
         self.toolIcon.obj.y = self.icon.obj.y + self.toolIcon.obj.h / 2
 
+        self.text = renderer.textLabel(py.Vector2(0,0), "", "assets/fonts/pixel.ttf", self.scene)
+        self.text.zIndex = 105
+        self.text.textSize = 15
+        self.text.text = str(self.index + 1)
+
+        self.text.obj.x = self.icon.obj.x + 8
+        self.text.obj.y = self.icon.obj.y + 8
+
         self.wasNone = True
+        self.justEquipped = False
 
         
-    def update(self):
+    def update(self, equipped):
         if tools[self.index] is not None:
             tl = tools[self.index]
 
@@ -51,6 +61,11 @@ class hotbarIcon:
                 self.wasNone = False
                 if tl.Icon is not None:
                     self.toolIcon.changeImage(tl.Icon)
+            
+            if equipped is not None and self.justEquipped is False:
+                self.justEquipped = True
+                self.icon.changeImage("assets/hud/toolbarEquipped.png")
+                
 
             if tl.Icon is not None:
                 self.toolIcon.zIndex = 100
@@ -59,16 +74,20 @@ class hotbarIcon:
 
 class backpack:
     def __init__(self, scene):
+        self.isPlayer = False
         self.scene = scene
-        self.inputs = [input.keyInput(py.K_1), input.keyInput(py.K_2), input.keyInput(py.K_3), input.keyInput(py.K_4)]
         self.equipped = None
-        self.hotbar = [0,0,0,0]
+        self.hotbar = [None,None,None,None]
+
+    def makePlayer(self):
+        self.inputs = [input.keyInput(py.K_1), input.keyInput(py.K_2), input.keyInput(py.K_3), input.keyInput(py.K_4)]
         for key in self.inputs:
             key.onDown = self.inputHandler
             key.onUp = self.inputHandlerUp
 
         for i in range(len(self.inputs)):
             self.hotbar[i] = hotbarIcon(i, self.scene)
+        self.isPlayer = True
 
     def inputHandler(self, key):
         if key == self.inputs[0]:
@@ -112,15 +131,23 @@ class backpack:
 
     def addTool(self, tool, index):
         tools[index] = tool
-        print("Inserted new tool")
 
     def update(self):
+        if self.isPlayer is True:
+            for icon in self.hotbar:
+                icon.update(self.equipped)
 
-        for icon in self.hotbar:
-            icon.update()
+            if self.equipped is not None:
+                self.equipped.update()
 
-        if self.equipped is not None:
-            self.equipped.update()
-
-            if py.mouse.get_pressed()[0] is True:
-                self.equipped.activated()
+                if py.mouse.get_pressed()[0] is True:
+                    if self.equipped.active is False:
+                        self.equipped.activated()
+                        self.equipped.active = True
+                else:
+                    self.equipped.active = False
+            else:
+                for icon in self.hotbar:
+                        if icon.justEquipped is True:
+                            icon.justEquipped = False
+                            icon.icon.changeImage("assets/hud/toolbar.png")

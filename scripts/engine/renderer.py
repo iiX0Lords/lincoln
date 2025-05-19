@@ -187,3 +187,44 @@ class button(imageFrame):
                 self.onClick(mousePosition)
             else:
                 self.onUnclick(mousePosition)
+
+
+class textLabel(frame):
+    def __init__(self, position, text, fontFile, scene):
+        frame.__init__(self, position, scene)
+        self.text = text
+        self.oldText = text
+        self.textObj = None
+
+        self.fontFile = fontFile
+        self.textSize = 20
+        self.backgroundColour = None
+
+        self.updateFont()
+
+    def updateFont(self):
+        self.font = py.font.Font(self.fontFile, self.textSize)
+
+        if self.textObj is not None:
+            oldPosition = math.Vector2(self.obj.x, self.obj.y)
+            oldSize = math.Vector2(self.obj.h, self.obj.w)
+
+            self.textObj = self.font.render(self.text, True, self.colour, self.backgroundColour)
+            self.obj = self.textObj.get_rect()
+
+            self.obj.x = oldPosition.x
+            self.obj.y = oldPosition.y
+
+            self.obj.w = oldSize.x
+            self.obj.h = oldSize.y
+        else:
+            self.textObj = self.font.render(self.text, True, self.colour, self.backgroundColour)
+            self.obj = self.textObj.get_rect()
+
+    def update(self):
+        if self.oldText != self.text:
+            self.oldText = self.text
+            self.updateFont()
+
+    def render(self, screen):
+        screen.blit(self.textObj, self.obj)
