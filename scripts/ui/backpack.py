@@ -9,6 +9,7 @@ class tool:
     def __init__(self):
         self.Icon = None
         self.active = False
+        self.isEquipped = False
 
     def equipped(self):
         pass
@@ -94,6 +95,7 @@ class backpack:
             if tools[0] is not None:
                 if self.equipped == tools[0]:
                     self.equipped.unequipped()
+                    self.equipped.isEquipped = False
                     self.equipped = None
                 else:
                     self.equipped = tools[0]
@@ -102,6 +104,7 @@ class backpack:
             if tools[1] is not None:
                 if self.equipped == tools[1]:
                     self.equipped.unequipped()
+                    self.equipped.isEquipped = False
                     self.equipped = None
                 else:
                     self.equipped = tools[1]
@@ -110,6 +113,7 @@ class backpack:
             if tools[2] is not None:
                 if self.equipped == tools[2]:
                     self.equipped.unequipped()
+                    self.equipped.isEquipped = False
                     self.equipped = None
                 else:
                     self.equipped = tools[2]
@@ -118,6 +122,7 @@ class backpack:
             if tools[3] is not None:
                 if self.equipped == tools[3]:
                     self.equipped.unequipped()
+                    self.equipped.isEquipped = False
                     self.equipped = None
                 else:
                     self.equipped = tools[3]
@@ -139,6 +144,7 @@ class backpack:
 
             if self.equipped is not None:
                 self.equipped.update()
+                self.equipped.isEquipped = True
 
                 if py.mouse.get_pressed()[0] is True:
                     if self.equipped.active is False:

@@ -18,6 +18,9 @@ dt = 0
 
 firstSea = scenes.first_sea.first_sea()
 
+fpsCounter = renderer.textLabel(math.Vector2(0, 0), "0", "assets/fonts/pixel.ttf", firstSea)
+fpsCounter.colour = py.Color(0, 255, 0)
+
 while running:
 
     window.fill(py.Color(25, 83, 191))
@@ -37,5 +40,5 @@ while running:
 
     py.display.flip()
 
-    #print(clock.get_fps())
+    fpsCounter.text = str(round(clock.get_fps()))
     dt = clock.tick(60) / 1000

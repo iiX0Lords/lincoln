@@ -12,7 +12,7 @@ import scripts.ui.backpack as backpack
 
 
 class Player(enity.Entity):
-    def __init__(self, position, scene):
+    def __init__(self, position, scene, magic):
         image = spritesheet.spritesheet("assets/creatures/player.png")
         image = image.image_at((0, 0, 16, 16), py.Color(0, 0, 0))
         enity.Entity.__init__(self, position, image, scene)
@@ -24,8 +24,7 @@ class Player(enity.Entity):
 
         self.hud = scripts.ui.hud.Hud(scene)
         self.backpack.makePlayer()
-
-        
+        self.addMagic(magic)
 
         up = input.keyInput(py.K_w)
         down = input.keyInput(py.K_s)
@@ -49,6 +48,10 @@ class Player(enity.Entity):
         left.onUp = self.left_stop
         right.onUp = self.right_stop
 
+        blastKey = input.keyInput(py.K_q)
+        blastKey.onDown = self.chargeBlast
+        blastKey.onUp = self.blast
+
         #self.debug = True
 
         self.keys = {
@@ -62,8 +65,12 @@ class Player(enity.Entity):
         self.humanoid["speed"] = 1
         self.friction = 0.5
 
-    def test(self):
-        print("jogn is smnean")
+    def blast(self, key):
+        if self.magic.isEquipped is True:
+            self.magic.blast(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]))
+    def chargeBlast(self, key):
+        if self.magic.isEquipped is True:
+            self.magic.chargeBlast()
 
     def move_left(self, key):
         self.keys["left"] = True
@@ -127,3 +134,9 @@ class Player(enity.Entity):
     def onUi(self):
         self.hud.update()
         self.backpack.update()
+
+    def stateChange(self, state):
+        if state == "normalCharge":
+            self.changeImage("assets/creatures/plrEquip2.png")
+        elif state == "idle":
+            self.changeImage("assets/creatures/player.png")

@@ -33,7 +33,7 @@ class first_sea(renderer.scene):
 
         self.camera.zoom = 3
 
-        self.player = player.Player(vector2.Vector2(0, 0), self)
+        self.player = player.Player(vector2.Vector2(0, 0), self, "Fire")
         self.player.zIndex = 2
         self.mapGrid = [[None for _ in range(self.map.width)] for _ in range(self.map.height)]
         self.mapTiles = []

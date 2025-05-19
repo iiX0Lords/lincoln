@@ -3,6 +3,7 @@ import scripts.engine.renderer as renderer
 import scripts.engine.math as math
 import scripts.engine.input as input
 import scripts.ui.backpack as backpack
+import scripts.magic.magics as magics
 import pytmx
 
 class Entity(renderer.imageObject):
@@ -24,8 +25,19 @@ class Entity(renderer.imageObject):
         self.currentZone = None
         self.standingTile = None
         self.backpack = backpack.backpack(scene)
+        self.magic = None
 
         self.angle = 0
+
+    def addMagic(self, magic):
+        magicClass = getattr(magics, magic, None)
+        if magicClass:
+            self.magic = magicClass(self)
+            self.backpack.addTool(self.magic, 0)
+
+    def stateChange(self, state):
+        pass
+
     def takeDamage(self, amount):
         self.stats["health"] -= amount
     def heal(self, amount):

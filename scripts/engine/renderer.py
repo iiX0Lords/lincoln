@@ -31,7 +31,6 @@ class object:
         self.scene = scene
         self.ui = False
         self.scene.objects.append(self)
-        self.id = len(self.scene.objects)
         self.width = 0
         self.zIndex = 0
 
@@ -48,7 +47,7 @@ class object:
         self.obj.y = y
 
     def destroy(self):
-        self.scene.objects.pop(self.id)
+        self.scene.objects.pop(self.scene.objects.index(self))
 
 class imageObject(object):
     def __init__(self, position, image, scene):
