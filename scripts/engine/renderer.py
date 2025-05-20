@@ -1,5 +1,6 @@
 import pygame as py
 import scripts.engine.input as input
+import math as pymath
 import scripts.engine.math as math
 import scripts.engine.spritesheet as spritesheet
 
@@ -33,15 +34,48 @@ class object:
         self.scene.objects.append(self)
         self.width = 0
         self.zIndex = 0
+        self.rotation = None
+
+    def renderRotated(self, position, screen):
+        x,y = position.x, position.y
+        width, height = self.obj.w, self.obj.h
+        rotation = self.rotation
+        points = []
+        radius = pymath.sqrt((height / 2)**2 + (width / 2)**2)
+        angle = pymath.atan2(height / 2, width / 2)
+        angles = [angle, -angle + pymath.pi, angle + pymath.pi, -angle]
+        rotRadians = (pymath.pi / 180) * rotation
+
+        for angle in angles:
+            yOffset = -1 * radius * pymath.sin(angle + rotRadians)
+            xOffset = radius * pymath.cos(angle + rotRadians)
+            points.append((x + xOffset, y + yOffset))
+
+        py.draw.polygon(screen, self.colour, points)
+
+    def moveForward(self, amount, angle = None):
+        if angle is None:
+            angle = self.rotation
+        x = amount * pymath.cos(pymath.radians(angle))
+        y = -amount * pymath.sin(pymath.radians(angle))
+        x = self.obj.x + x
+        y = self.obj.y + y
+        self.setPos(x, y)
 
     def render(self, screen):
         if self.ui is False:
             renderRect = py.Rect()
             renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
-            renderRect.update(renderPos.x, renderPos.y, self.obj.w, self.obj.h)
-            py.draw.rect(screen, self.colour, renderRect, width=self.width)
+            if self.rotation is not None:
+                self.renderRotated(renderPos, screen)
+            else:
+                renderRect.update(renderPos.x, renderPos.y, self.obj.w, self.obj.h)
+                py.draw.rect(screen, self.colour, renderRect, width=self.width)
         else:
-            py.draw.rect(screen, self.colour, self.obj, width=self.width)
+            if self.rotation is not None:
+                self.renderRotated(math.Vector2(self.obj.x, self.obj.y), screen)
+            else:
+                py.draw.rect(screen, self.colour, self.obj, width=self.width)
     def setPos(self, x, y):
         self.obj.x = x
         self.obj.y = y

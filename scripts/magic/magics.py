@@ -1,6 +1,7 @@
 import pygame as py
 import scripts.ui.backpack as backpack
 import scripts.engine.renderer as renderer
+import math as pymath
 import scripts.engine.math as math
 
 class Magic(backpack.tool):
@@ -11,9 +12,11 @@ class Magic(backpack.tool):
         self.magicCircle = None
 
     def blast(self, position):
-        print(position)
+        self.wielder.stateChange("idle")
+        self.magicCircle.destroy()
     def chargeBlast(self):
-        pass
+        self.wielder.stateChange("normalCharge")
+        self.createNormalMagicCircle()
 
     def createNormalMagicCircle(self):
         self.magicCircle = renderer.object(math.Vector2(self.wielder.obj.x, self.wielder.obj.y), self.wielder.scene)
@@ -23,7 +26,12 @@ class Magic(backpack.tool):
         self.magicCircle.obj.h = 5
     def update(self):
         if self.magicCircle is not None:
+            angle = self.wielder.angle
+            
+            self.magicCircle.rotation = angle - 90
             self.magicCircle.setPos(self.wielder.obj.x, self.wielder.obj.y)
+            self.magicCircle.moveForward(9, angle)
+
 
 class Fire(Magic):
     def __init__(self, wielder):
@@ -31,10 +39,8 @@ class Fire(Magic):
         self.Icon = "assets/tools/fireMagicIcon.png"
         self.colour = py.Color(237, 124, 31)
     def blast(self, position):
-        self.wielder.stateChange("idle")
-        self.magicCircle.destroy()
+        Magic.blast(self, position)
         print(position)
     def chargeBlast(self):
-        self.wielder.stateChange("normalCharge")
-        self.createNormalMagicCircle()
+        Magic.chargeBlast(self)
         
