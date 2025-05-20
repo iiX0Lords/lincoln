@@ -35,6 +35,8 @@ class object:
         self.width = 0
         self.zIndex = 0
         self.rotation = None
+        self.velocity = math.Vector2()
+        self.friction = 0.5
 
     def renderRotated(self, position, screen):
         x,y = position.x, position.y
@@ -63,6 +65,7 @@ class object:
         self.setPos(x, y)
 
     def render(self, screen):
+        self.doVel()
         if self.ui is False:
             renderRect = py.Rect()
             renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
@@ -83,9 +86,17 @@ class object:
     def destroy(self):
         self.scene.objects.pop(self.scene.objects.index(self))
 
+    def doVel(self):
+        self.obj.x += self.velocity.x
+        self.obj.y += self.velocity.y
+        self.velocity *= self.friction
+        
+        if self.velocity.length() < 0.1:
+            self.velocity.x, self.velocity.y = 0, 0
+
 class imageObject(object):
     def __init__(self, position, image, scene):
-        if type(image) == str:
+        if type(image) is str:
             self.image = py.image.load(image).convert_alpha()
         else:
             self.image = image.convert_alpha()
@@ -95,6 +106,7 @@ class imageObject(object):
         self.origin = math.Vector2()#math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
         self.obj = self.returnNewRect()
         self.rotated = None
+        self.angle = 0
 
     def returnNewRect(self):
         return self.image.get_rect(x=self.obj.x, y=self.obj.y)
@@ -105,15 +117,22 @@ class imageObject(object):
 
     def changeImage(self, newImage):
         old = self.image.get_size()
-        self.image = py.image.load(newImage).convert_alpha()
+        if type(newImage) is str:
+            self.image = py.image.load(newImage).convert_alpha()
+        else:
+            self.image = newImage.convert_alpha()
         self.scale(math.Vector2(old[0], old[1]))
-
+    def rot_center(self, image, angle, x, y):
+        rotated_image = py.transform.rotate(image, angle)
+        new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+        return rotated_image, new_rect
     def updateImage(self):
         self.image = py.transform.scale(self.image, math.Vector2(self.obj.w * self.scene.camera.zoom, self.obj.h * self.scene.camera.zoom))
         self.obj = self.returnNewRect()
-        self.origin = math.Vector2()#math.Vector2(self.image.get_width() / 2, self.image.get_height() / 2)
+        self.origin = math.Vector2()
 
     def render(self, screen):
+        self.doVel()
         renderPos = math.Vector2(self.obj.x, self.obj.y).toScreenSpace(self.scene.camera, screen)
         renderPos -= self.origin
         if renderPos.x < screen.get_width() and renderPos.y < screen.get_height():
@@ -137,33 +156,39 @@ class imageObject(object):
             py.draw.rect(screen, self.debugColour, renderRect, 2, 1)
 
 
-class imageObjectSpritesheet(object):
-    def __init__(self, position, spriteposition, size, gridPos, scene):
-        object.__init__(self, position, scene)
-        self.spritesheet = spritesheet.spritesheet("assets/tiles/iso.png")
-        self.gridPos = gridPos
-        self.image = self.spritesheet.image_at((spriteposition.x, spriteposition.y, size.x, size.y), py.Color(0, 0, 0))
-        self.image = self.image.convert_alpha()
-    def scale(self, newSize):
-        self.image = py.transform.scale(self.image, newSize)
-        self.obj.w = self.image.get_width()
-        self.obj.h = self.image.get_height()
+class animatedImage(imageObject):
+    def __init__(self, rectReference, scene, image, count):
+        self.spritesheet = spritesheet.spritesheet(image)
+        self.frames = self.spritesheet.load_strip(rectReference, count, py.Color(0, 0, 0))
+        self.currentFrame = 0
+        imageObject.__init__(self, math.Vector2(0, 0), self.frames[0], scene)
+        self.updateImage()
 
-    def changeImage(self, spriteposition, size):
-        old = self.image.get_size()
-        self.image = self.spritesheet.image_at((spriteposition.x, spriteposition.y, size.x, size.y), py.Color(0, 0, 0))
-        self.scale(math.Vector2(old[0], old[1]))
-        self.image = self.image.convert_alpha()
+        self.lastUpdate = py.time.get_ticks()
+        self.currentTime = py.time.get_ticks()
+        self.fps = 57
+    
+    def step(self):
+        self.currentFrame += 1
+        if self.currentFrame >= len(self.frames):
+            self.currentFrame = 0
+        if self.rotated is not None:
+            newImage, newRect = self.rot_center(self.frames[self.currentFrame], self.angle, self.obj.x, self.obj.y)
+            newImage = newImage.convert_alpha()
+            newImage = py.transform.scale(newImage, math.Vector2(self.rotated.get_width(), self.rotated.get_height()))
+            self.rotated = newImage
+        else:
+            self.changeImage(self.frames[self.currentFrame])
 
     def render(self, screen):
-        cart_x = self.gridPos.x * 42
-        cart_y = self.gridPos.y * 42
-        iso_x = (cart_x - cart_y) 
-        iso_y = (cart_x + cart_y)/2
 
-        renderPos = math.Vector2(iso_x, iso_y)
-        renderPos = renderPos.toScreenSpace(self.scene.camera, screen)
-        screen.blit(self.image, (renderPos.x, renderPos.y))
+        self.currentTime = py.time.get_ticks()
+        if self.currentTime - self.lastUpdate >= self.fps:
+            self.step()
+            self.lastUpdate = self.currentTime
+
+        imageObject.render(self, screen)
+        
 
 class camera():
     def __init__(self):

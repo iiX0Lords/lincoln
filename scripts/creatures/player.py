@@ -110,23 +110,6 @@ class Player(enity.Entity):
         if self.keys["down"] is True:
             self.velocity.y = self.humanoid["speed"]
 
-        self.obj.x += self.velocity.x; self.obj.y += self.velocity.y
-        if self.velocity.x > 0:
-            self.velocity.x -= self.friction
-        elif self.velocity.x < 0:
-            self.velocity.x += self.friction
-        
-        if self.velocity.y > 0:
-            self.velocity.y -= self.friction
-        elif self.velocity.y < 0:
-            self.velocity.y += self.friction
-
-        if self.velocity.x >= 0 and self.velocity.x <= 0.2:
-            self.velocity.x = 0
-        
-        if self.velocity.y >= 0 and self.velocity.y <= 0.2:
-            self.velocity.y = 0
-        
         self.collisionCheck(previousPosition)
 
         self.pointAt(math.Vector2(py.mouse.get_pos()[0], py.mouse.get_pos()[1]), 9, 5)
